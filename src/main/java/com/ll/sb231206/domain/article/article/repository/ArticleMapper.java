@@ -4,6 +4,7 @@ import com.ll.sb231206.domain.article.article.entity.Article;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -52,4 +53,16 @@ public interface ArticleMapper {
             WHERE A.RN <= 1
             """)
     Optional<Article> findFirstByOrderByIdDesc();
+
+    @Select("""
+            SELECT *
+            FROM (
+            	SELECT A.*,
+                ROW_NUMBER() OVER(ORDER BY A.ID DESC) RN
+                FROM ARTICLE A
+            ) A
+            WHERE A.RN <= 3
+            ORDER BY A.RN ASC
+            """)
+    List<Article> findTop3ByOrderByIdDesc();
 }
