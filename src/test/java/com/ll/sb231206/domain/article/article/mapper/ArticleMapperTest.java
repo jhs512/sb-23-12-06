@@ -1,7 +1,6 @@
 package com.ll.sb231206.domain.article.article.mapper;
 
 import com.ll.sb231206.domain.article.article.entity.Article;
-import com.ll.sb231206.domain.article.article.repository.ArticleMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.ll.sb231206.global.init;
 
 import com.ll.sb231206.domain.article.article.entity.Article;
-import com.ll.sb231206.domain.article.article.repository.ArticleMapper;
+import com.ll.sb231206.domain.article.article.mapper.ArticleMapper;
 import com.ll.sb231206.domain.article.article.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;

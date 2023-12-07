@@ -1,4 +1,4 @@
-package com.ll.sb231206.domain.article.article.repository;
+package com.ll.sb231206.domain.article.article.mapper;
 
 import com.ll.sb231206.domain.article.article.entity.Article;
 import org.apache.ibatis.annotations.*;
