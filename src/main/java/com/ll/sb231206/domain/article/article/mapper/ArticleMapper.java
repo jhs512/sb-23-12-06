@@ -2,6 +2,9 @@ package com.ll.sb231206.domain.article.article.mapper;
 
 import com.ll.sb231206.domain.article.article.entity.Article;
 import org.apache.ibatis.annotations.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +39,7 @@ public interface ArticleMapper {
     long _insert(Article article);
 
     @Update("""
-            
+                        
             UPDATE ARTICLE
             SET MODIFY_DATE = #{modifyDate}, TITLE = #{title}, CONTENT = #{content}
             WHERE ID = #{id}
@@ -65,4 +68,62 @@ public interface ArticleMapper {
             ORDER BY A.RN ASC
             """)
     List<Article> findTop3ByOrderByIdDesc();
+
+    default Page<Article> search(List<String> kwTypes, String kw, Pageable pageable) {
+        String title = kwTypes.contains("title") ? kw : null;
+        String content = kwTypes.contains("content") ? kw : null;
+
+        List<Article> articles = _searchRows(title, content, pageable.getOffset(), pageable.getOffset() + pageable.getPageSize());
+
+        return PageableExecutionUtils.getPage(articles, pageable, () -> _searchCount(title, content));
+    }
+
+    @Select("""
+            SELECT COUNT(*)
+            FROM ARTICLE A
+            <where>
+                <choose>
+                    <when test='title != null and content != null'>
+                        OR LOWER(A.TITLE) LIKE '%' || LOWER(#{title}) || '%'
+                        OR LOWER(A.CONTENT) LIKE '%' || LOWER(#{content}) || '%'
+                    </when>
+                    <when test='title != null'>
+                        OR LOWER(A.TITLE) LIKE '%' || LOWER(#{title}) || '%'
+                    </when>
+                    <when test='content != null'>
+                        OR LOWER(A.CONTENT) LIKE '%' || LOWER(#{content}) || '%'
+                    </when>
+                </choose>
+            </where>
+            """)
+    long _searchCount(String title, String content);
+
+    @Select("""
+            <script>
+            SELECT *
+            FROM (
+                SELECT A.*,
+                DENSE_RANK() OVER(ORDER BY A.ID DESC) RN
+                FROM ARTICLE A
+                <where>
+                    <choose>
+                        <when test='title != null and content != null'>
+                            OR LOWER(A.TITLE) LIKE '%' || LOWER(#{title}) || '%'
+                            OR LOWER(A.CONTENT) LIKE '%' || LOWER(#{content}) || '%'
+                        </when>
+                        <when test='title != null'>
+                            OR LOWER(A.TITLE) LIKE '%' || LOWER(#{title}) || '%'
+                        </when>
+                        <when test='content != null'>
+                            OR LOWER(A.CONTENT) LIKE '%' || LOWER(#{content}) || '%'
+                        </when>
+                    </choose>
+                </where>
+            ) A
+            WHERE <![CDATA[ A.RN <= #{offsetPlusLimit} ]]>
+            AND <![CDATA[ A.RN > #{offset} ]]>
+            ORDER BY A.RN
+            </script>
+            """)
+    List<Article> _searchRows(String title, String content, long offset, long offsetPlusLimit);
 }

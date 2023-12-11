@@ -54,6 +54,7 @@ public class ArticleRepositoryTest {
         int page = 1;
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("id"));
+
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(sorts));
 
         Page<Article> articlePage = articleRepository.search(
